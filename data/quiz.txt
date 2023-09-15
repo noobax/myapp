@@ -1,0 +1,10 @@
+temps	time
+fois	times
+peu	little
+yeux	eyes
+tête	head
+homme	man
+vie	life
+jour	day
+main	hand
+mère	mother
