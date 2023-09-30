@@ -1,8 +1,61 @@
-import words from "./words.js"
+import words from "./cards.js"
 (function(){
-	const qEl = document.querySelector('#q')
-	const aEl = document.querySelector('#a')
-	const bEl = document.querySelector('#s')
+	const cardTextEl = document.querySelector('#card-text')
+	const userInputEl = document.querySelector('#user-input')
+	const submitCardEl = document.querySelector('#submit-card')
+	const bodyEl = document.querySelector('#body')
+
+	function LocalStorage(itemName) {
+		this.itemName = itemName
+
+		this.getStorage = () => {
+			const data = localStorage.getItem(this.itemName)
+			return data === null ? null : JSON.parse(data)
+		}
+		this.setStorage = (item) => {
+			localStorage.setItem(JSON.stringify(item))
+		}
+		this.removeStorage = () => {
+			localStorage.removeItem(this.itemName)
+		}
+	}
+	function App(root) {
+		this.root = root
+		this.cards = () => {
+			return `
+				<ul>
+					<li><a href="?q=0">0-10</a></li>
+				</ul>
+			</nav>
+			<div id="container" style="height:100vh;display:flex;align-items: center;justify-content: space-around;">
+				<article>
+					<h3 id="card-text" style="text-align:center">mot a trouver</h3>
+					<input id="user-input" type="text"/>
+					<button id="submit-card" class="">Valider</button>
+				</article>
+			</div>
+			`
+		}
+		this.profile = (users) => {
+			let usersList = ''
+			for (const [key, value] of Object.entries(users)) {
+				usersList += `<li>${value}</li>`
+			}
+			return `
+				<article styple="">
+					<ul>
+						${usersList}
+					</ul>
+				</article
+			`
+		}
+		this.render = () => {
+			root.innerHTML = this.profile({"1": "Jean", "2": "Paul"})
+		}
+	}
+	const app = new App(bodyEl)
+	app.render()
+	/*
 	const boxDelay = {
 		"1": 1,
 		"2": 2,
@@ -97,5 +150,5 @@ import words from "./words.js"
 	const quiz = new Quiz(qs)
 
 	quiz.render(quiz.qs[quiz.i])
-}
-)()
+	*/
+})()
