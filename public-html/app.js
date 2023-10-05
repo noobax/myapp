@@ -1,62 +1,67 @@
-import words from "./cards.js"
+import pages from "./index.js"
+import cards from "./cards.js"
+import { getLocalStorage, setLocalStorage, removeLocalStorage, getUrlParamValue, getProfiles } from './utility.js'
+
 (function(){
-	const cardTextEl = document.querySelector('#card-text')
-	const userInputEl = document.querySelector('#user-input')
-	const submitCardEl = document.querySelector('#submit-card')
-	const bodyEl = document.querySelector('#body')
+const SETSIZE = 10
+function CardSession(cardSet) {
+	this.cardTextEl = document.querySelector('#card-text')
+	this.userInputEl = document.querySelector('#user-input')
+	this.submitCardEl = document.querySelector('#submit-card')
+	this.setEventListeners = () => {
 
-	function LocalStorage(itemName) {
-		this.itemName = itemName
-
-		this.getStorage = () => {
-			const data = localStorage.getItem(this.itemName)
-			return data === null ? null : JSON.parse(data)
-		}
-		this.setStorage = (item) => {
-			localStorage.setItem(JSON.stringify(item))
-		}
-		this.removeStorage = () => {
-			localStorage.removeItem(this.itemName)
-		}
-	}
-	function App(root) {
-		this.root = root
-		this.cards = () => {
-			return `
-				<ul>
-					<li><a href="?q=0">0-10</a></li>
-				</ul>
-			</nav>
-			<div id="container" style="height:100vh;display:flex;align-items: center;justify-content: space-around;">
-				<article>
-					<h3 id="card-text" style="text-align:center">mot a trouver</h3>
-					<input id="user-input" type="text"/>
-					<button id="submit-card" class="">Valider</button>
-				</article>
-			</div>
-			`
-		}
-		this.profile = (users) => {
-			let usersList = ''
-			for (const [key, value] of Object.entries(users)) {
-				usersList += `<li>${value}</li>`
+		document.addEventListener('keypress', (e) => {
+			if (e.key === "Enter") {
+				this.submitCardEl.click()
 			}
-			return `
-				<article styple="">
-					<ul>
-						${usersList}
-					</ul>
-				</article
-			`
-		}
-		this.render = () => {
-			root.innerHTML = this.profile({"1": "Jean", "2": "Paul"})
+		})
+		this.submitCardEl.addEventListener('click', () => {
+			const correct = this.isCorrect()
+			if (correct)
+				this.score++
+			this.saveCard(correct)
+			this.nextQuestion()
+		})
+	}
+	this.cardSet = cardSet
+	this.cards = cards()
+	this.i = 0
+	this.score = 0
+	this.user = getUrlParamValue('u')
+	this.saveCard = (correct) => {
+		const currentCardID = this.cardSet[this.i - 1]
+		const profiles = getProfiles()
+		
+		//setLocalStorage('profiles', )
+	}
+	/*
+	 * {'Paul': {'phase1': {'1': {'time': '22432424', 'box': '4', '2': {'time': '414214', 'box': '3'}}}, {'phase2'...}}}
+	 */
+
+	this.isCorrect = () => {
+		return this.userInputEl.value === this.cards[this.cardSet[this.i - 1]].a
+	}
+	this.render = (card) => {
+		this.cardTextEl.innerText = card.q
+		this.userInputEl.value = ''
+		this.userInputEl.focus()
+	}
+	this.nextQuestion = () => {
+		if (this.i < SETSIZE) {
+			const card = this.cards[this.cardSet[this.i]]
+			this.render(card)
+			this.i++
+		} else {
+			window.alert(this.score)
 		}
 	}
-	const app = new App(bodyEl)
-	app.render()
-	/*
-	const boxDelay = {
+}
+
+function FlashCards(cards) {
+	this.cards = cards
+	
+	this.i = 0
+	this.boxDelay = {
 		"1": 1,
 		"2": 2,
 		"3": 4,
@@ -65,90 +70,101 @@ import words from "./cards.js"
 		"6": 28,
 		"7": 63,
 	}
-
-	document.addEventListener('keypress', (e) => {
-		if (e.key === "Enter") {
-			bEl.click()
+	this.getStoredCards = () => {
+		return getLocalStorage('cards')
+	}
+	this.availableCards = () => {
+		const cards = []
+		const currentDay = Date.now()
+		const storedCards = this.getStoredCards()
+		for (const [key, value] of Object.entries(storedCards)) {
+			if (currentDay >= value.time)
+				cards.push(key)
 		}
-	})
-
-	bEl.addEventListener('click', () => {
-
-		if (quiz.qs.hasOwnProperty(quiz.i + 1)) {
-			var isCorrect = quiz.qs[quiz.i].isCorrect(aEl.value)
-			if (isCorrect) {
-				quiz.correct()
+		return cards
+	}
+	this.getCardSet = () => {
+		let cardSet = []
+		const storedCards = this.availableCards()
+		if (storedCards !== false)
+			cardSet = storedCards
+		while (cardSet.length < SETSIZE) {
+			for (const [key, value] of Object.entries(this.cards)) {
+				if (!cardSet.includes(key))
+					cardSet.push(key)
 			}
 		}
-		qs[quiz.i].save(isCorrect)
-		quiz.nextQuestion()
-	})
+		return cardSet
+	}
+	this.start = () => {
+		const cardSession = new CardSession(this.getCardSet())
+		cardSession.setEventListeners()
+		cardSession.nextQuestion()
+}
+}
 
-	function Q(id, question, answer) {
-		this.id = id
-		this.question = question.toLowerCase()
-		this.answer = answer
+function Profiles() {
+	this.userNameEl = document.querySelector('#user-name')
+	this.submitUserNameEl = document.querySelector('#submit-user-name')
+	this.setEventListeners = () => {
 
-		this.isCorrect = (userAnswer) => {
-			return this.answer === userAnswer.toLowerCase()
-		}
-		this.getEntry = () => {
-			const load = JSON.parse(localStorage.getItem(this.id))
-
-			if (load === null) return null
-			return load
-		}
-		this.save = (isCorrect) => {
-			const load = this.getEntry()
-			const millInDay = 86400000
-			const currentTime = Date.now()
-			if (load === null) {
-				const nextBox = isCorrect ? 2 : 1
-					localStorage.setItem(this.id, '{"box":"' + nextBox + '", "time":"' + (nextBox * millInDay + currentTime) + '"}')
-			} else {
-				const currentBox = parseInt(load["box"])
-				const nextBox = isCorrect && currentBox < 7 ? (currentBox + 1) : !isCorrect && currentBox > 1 ? (currentBox - 1) : currentBox
-
-				localStorage.setItem(this.id, '{"box":"' + nextBox + '", "time":"' + (boxDelay[nextBox] * millInDay + currentTime) + '"}')
+		document.addEventListener('keypress', (e) => {
+			if (e.key === "Enter") {
+				this.submitUserNameEl.click()
 			}
-			let newLoad = this.getEntry()
-			console.log(newLoad)
+		})
+		this.submitUserNameEl.addEventListener('click', () => {
+			this.createProfile(this.userNameEl.value)
+			app.render()
+		})
+	}
+	this.createProfile = (name) => {
+		if (name === '') return false
+		const profiles = getProfiles()//this.getProfiles()
+		if (profiles === false) {
+			setLocalStorage('profiles', {[name]: 1})
+			return true
+		}
+		let isUnique = true
+		for (const [key, value] of Object.entries(profiles)) {
+			if (name === key)
+				return false
+		}
+		console.log(profiles)
+		profiles[name] = {}
+		setLocalStorage('profiles', profiles)
+		console.log(profiles)
+		return true
+	}
+		/*
+	this.getProfiles = () => {
+		const profiles = getLocalStorage('profiles')
+		console.log(profiles)
+		return profiles
+	}
+		*/
+	this.main = () => {
+		this.setEventListeners()
+	}
+}
+
+function App() {
+	this.render = () => {
+		const bodyEl = document.querySelector('#body')
+		const page = getUrlParamValue('p')
+		const params = getLocalStorage(page)
+
+		bodyEl.innerHTML = pages(page, params)
+		if (page === 'cards') {
+			const flashCards = new FlashCards(cards())
+			flashCards.start()
+		}
+		if (page === 'profiles') {
+			const profiles = new Profiles()
+			profiles.main()
 		}
 	}
-
-
-	function Quiz(qs) {
-		this.qs = qs 
-		this.i = 0
-		this.score = 0
-
-		this.correct = () => this.score++
-		this.render = (q) => {
-			qEl.innerText = q.question
-			aEl.value = ''
-			aEl.focus()
-		}
-		this.nextQuestion = () => {
-			if (qs.hasOwnProperty(this.i + 1)) {
-		 		this.i++
-				let q = qs[this.i]
-				this.render(q)
-
-			} else {
-				window.alert('You got ' + this.score + ' correct out of ' + this.qs.length)
-			}
-		}
-	}
-
-	const qs = []
-	const params = new URL(document.location).searchParams
-	const stage = params.get('q')
-	for (const [key, value] of Object.entries(words(stage))) {
-
-		qs.push(new Q(key, value["q"], value["a"]))
-	}
-	const quiz = new Quiz(qs)
-
-	quiz.render(quiz.qs[quiz.i])
-	*/
+}
+const app = new App()
+app.render()
 })()
