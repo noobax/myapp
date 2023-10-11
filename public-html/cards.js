@@ -1,6 +1,6 @@
 export default function cards(n = 0) {
 	const data = [
-		JSON.parse('{"1":{"q":"time","a":"temps"},"2":{"q":"times","a":"fois"},"3":{"q":"little","a":"peu"},"4":{"q":"eyes","a":"yeux"},"5":{"q":"head","a":"tête"},"6":{"q":"man","a":"homme"},"7":{"q":"life","a":"vie"},"8":{"q":"day","a":"jour"},"9":{"q":"hand","a":"main"},"10":{"q":"mother","a":"mère"}}')
+		JSON.parse('{"1":{"q":"time","a":"temps"},"2":{"q":"times","a":"fois"},"3":{"q":"little","a":"peu"},"4":{"q":"eyes","a":"yeux"},"5":{"q":"head","a":"tête"},"6":{"q":"man","a":"homme"},"7":{"q":"life","a":"vie"},"8":{"q":"day","a":"jour"},"9":{"q":"hand","a":"main"},"10":{"q":"mother","a":"mère"},"11":{"q":"child","a":"enfant"}}')
 	]
 	if (n >= data.length) {
 		return data[0]

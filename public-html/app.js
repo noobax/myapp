@@ -23,6 +23,15 @@ function CardSession(cardSet) {
 			this.nextQuestion()
 		})
 	}
+	this.boxDelay = {
+		1: 1,
+		2: 2,
+		3: 4,
+		4: 9,
+		5: 16,
+		6: 28,
+		7: 63,
+	}
 	this.cardSet = cardSet
 	this.cards = cards()
 	this.i = 0
@@ -30,21 +39,42 @@ function CardSession(cardSet) {
 	this.user = getUrlParamValue('u')
 	this.saveCard = (correct) => {
 		const currentCardID = this.cardSet[this.i - 1]
-		const profiles = getProfiles()
-		
-		//setLocalStorage('profiles', )
+		let profiles = getProfiles()
+		if (profiles === false)
+			profiles = {[this.user]: {}}
+		if (currentCardID in profiles[this.user]) {
+			const card = profiles[this.user][currentCardID]
+			const currentBox = card.b
+			if (correct) {
+				const nextBox = currentBox >= 7 ? currentBox :currentBox + 1
+				profiles[this.user][currentCardID] = {t: this.nextTime(currentBox + 1), b: currentBox + 1}
+			} else {
+				const nextBox = currentBox <= 1 ? currentBox : currentBox - 1
+				profiles[this.user][currentCardID] = {t: this.nextTime(currentBox - 1), b: currentBox - 1}
+			}
+		} else {
+			if (correct) {
+				profiles[this.user][currentCardID] = {t: this.nextTime(2), b: 2}
+			} else {
+				profiles[this.user][currentCardID] = {t: this.nextTime(1), b: 1}
+			}
+		}[this.user]
+		setLocalStorage('profiles', profiles)
 	}
-	/*
-	 * {'Paul': {'phase1': {'1': {'time': '22432424', 'box': '4', '2': {'time': '414214', 'box': '3'}}}, {'phase2'...}}}
-	 */
+	this.nextTime = (box = 1) => {
+		const currentTime = Date.now()
+		return currentTime + (this.boxDelay[box] * 60 * 60 * 24 * 1000)
+	}
 
 	this.isCorrect = () => {
 		return this.userInputEl.value === this.cards[this.cardSet[this.i - 1]].a
 	}
 	this.render = (card) => {
-		this.cardTextEl.innerText = card.q
-		this.userInputEl.value = ''
-		this.userInputEl.focus()
+		if (card !== undefined) {
+			this.cardTextEl.innerText = card.q
+			this.userInputEl.value = ''
+			this.userInputEl.focus()
+		}
 	}
 	this.nextQuestion = () => {
 		if (this.i < SETSIZE) {
@@ -59,40 +89,39 @@ function CardSession(cardSet) {
 
 function FlashCards(cards) {
 	this.cards = cards
-	
+	this.user = getUrlParamValue('u')
 	this.i = 0
-	this.boxDelay = {
-		"1": 1,
-		"2": 2,
-		"3": 4,
-		"4": 9,
-		"5": 16,
-		"6": 28,
-		"7": 63,
-	}
 	this.getStoredCards = () => {
-		return getLocalStorage('cards')
+		const profiles = getLocalStorage('profiles')
+		return profiles ? profiles[this.user] : false
 	}
 	this.availableCards = () => {
 		const cards = []
 		const currentDay = Date.now()
 		const storedCards = this.getStoredCards()
 		for (const [key, value] of Object.entries(storedCards)) {
-			if (currentDay >= value.time)
+			if (currentDay >= value.t)
+				cards.push(key)
+		}
+		return cards
+	}
+	this.notAvailableCards = () => {
+		const cards = []
+		const currentDay = Date.now()
+		const storedCards = this.getStoredCards()
+		console.log(storedCards)
+		for (const [key, value] of Object.entries(storedCards)) {
+			if (currentDay < value.t)
 				cards.push(key)
 		}
 		return cards
 	}
 	this.getCardSet = () => {
-		let cardSet = []
-		const storedCards = this.availableCards()
-		if (storedCards !== false)
-			cardSet = storedCards
-		while (cardSet.length < SETSIZE) {
-			for (const [key, value] of Object.entries(this.cards)) {
-				if (!cardSet.includes(key))
-					cardSet.push(key)
-			}
+		const notAvailable = this.notAvailableCards()
+		const cardSet = this.availableCards()
+		for (const [key, value] of Object.entries(this.cards)) {
+			if (!notAvailable.includes(key))
+				cardSet.push(key)
 		}
 		return cardSet
 	}
@@ -130,19 +159,10 @@ function Profiles() {
 			if (name === key)
 				return false
 		}
-		console.log(profiles)
 		profiles[name] = {}
 		setLocalStorage('profiles', profiles)
-		console.log(profiles)
 		return true
 	}
-		/*
-	this.getProfiles = () => {
-		const profiles = getLocalStorage('profiles')
-		console.log(profiles)
-		return profiles
-	}
-		*/
 	this.main = () => {
 		this.setEventListeners()
 	}
