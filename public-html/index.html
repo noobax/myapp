@@ -8,8 +8,12 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
 	</head>
 	<body id="body">
-		<script type="module" src="app.js">
-			
-		</script>
+		<div id="quiz-app" class="container">
+			<h1 id="quiz-title">My app</h1>
+			<p id="quiz-question">What is your name?</p>
+			<input id="quiz-input" type="text" placeholder="write your name">
+			<button id="quiz-submit">Submit</button>
+		</div>
+		<script type="module" src="src/app.js"></script>
 	</body>
 </html>
