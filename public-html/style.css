@@ -2,11 +2,9 @@
 	margin: 0;
 	padding: 0;
 }
-#q { 
+#quiz-title,
+#quiz-question,
+#quiz-input { 
 	text-align: center; 
 	text-transform: capitalize;
-}
-#a {
-	text-transform: capitalize;
-	text-align: center; 
 }
