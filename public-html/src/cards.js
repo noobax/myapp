@@ -11,16 +11,6 @@ export function Cards(cardPull, localStorage) {
 		6: 37,
 		7: 64,
 	}
-
-
-	/*
-		* cardPull data structure is:
-		* {{1:{'q':question, 'a':answer}},...}
-		* localStorage data structure is:
-		* {{1:{'b':n,'t':timestamp}},...}
-		*/
-	//Select setSeize of cards from cardPull
-	//Take card already known and out of cooldown first
 	this.getCardSet = () => {
 		const cardSet = []
 		let data = localStorage.getData()
@@ -30,14 +20,14 @@ export function Cards(cardPull, localStorage) {
 		const currentTime = Date.now()
 		for (let key of dataKeys) {
 			if (cardSet.length >= this.setSeize)
-				exit()
+				break
 			if (data[key].t < currentTime)
 				cardSet.push(key)
 		}
 		const cardPullKeys = Object.keys(this.cardPull).sort(mixArray)
 		for (let key of cardPullKeys) {
 			if (cardSet.length >= this.setSeize)
-				exit()
+				break
 			if (!dataKeys.includes(key))
 				cardSet.push(key)
 		}
@@ -46,20 +36,26 @@ export function Cards(cardPull, localStorage) {
 	this.saveCard = (id, isCorrect) => {
 		const currentDate = Date.now()
 		const millInDay = 60*60*24*1000
-		const data = this.localStorage.getData()
+		let data = this.localStorage.getData()
 		let item;
-		if (data === null || !!data[id]) {
+		if (data === null) {
 			const nextBox = isCorrect ? 2 : 1
 			item = {[id]:{'b':nextBox, 't':(currentDate + millInDay * this.boxDelay[nextBox])}}
+		} else if (!!data[id] == false) {
+			const nextBox = isCorrect ? 2 : 1
+			item = {'b':nextBox, 't':(currentDate + millInDay * this.boxDelay[nextBox])}
 		} else {
 			const curBox = data[id]['b']
 			const nextBox = isCorrect ? curBox < 7 ? curBox++ : 7 : curBox > 1 ? curBox-- : 1
-			item = {'b':nextBox, 't':(currentDate + millInDay * thisboxDelay[nextBox])}
+			item = {'b':nextBox, 't':(currentDate + millInDay * this.boxDelay[nextBox])}
 		}
-		if (data === null)
+		console.log(item)
+		if (data === null) {
+			console.log('nop')
 			this.localStorage.setData(item)
-		else {
-			data = data[id] = item
+		} else {
+			console.log('yeah')
+			data[id] = item
 			this.localStorage.setData(data)
 		}
 	}

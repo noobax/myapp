@@ -11,7 +11,6 @@ import { getCards } from './getCards.js'
 	const quizInputEl = document.querySelector('#quiz-input')
 	const quizSubmitEl = document.querySelector('#quiz-submit')
 
-
 	quizInputEl.addEventListener('keypress', (e) => {
 		const answer = quizInputEl.value.toLowerCase()
 		const curQuestion = quiz.getCurrentQuestion()
@@ -42,9 +41,7 @@ import { getCards } from './getCards.js'
 	const cards = new Cards(getCards(cardSetNum), localStorage)
 	const cardSet = cards.getCardSet()
 	const questions = []
-	console.log(cardSet)
 	for (let key of cardSet) {
-		console.log(key, cards.cardPull)
 		questions.push(new Question(key, cards.cardPull[key]['q'], cards.cardPull[key]['a']))
 	}
 	const quiz = new Quiz(questions)

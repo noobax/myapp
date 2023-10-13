@@ -6,7 +6,6 @@ export function LocalStorage(name) {
 		return data === null ? null : JSON.parse(data)
 	}
 	this.setData = (data) => {
-		console.log(data)
 		const dataString = JSON.stringify(data)
 		localStorage.setItem(this.name, dataString)
 	}

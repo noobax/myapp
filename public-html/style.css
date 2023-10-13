@@ -1,12 +1,4 @@
-* {
-	margin: 0;
-	padding: 0;
-}
-#q { 
+* { 
 	text-align: center; 
 	text-transform: capitalize;
-}
-#a {
-	text-transform: capitalize;
-	text-align: center; 
 }
