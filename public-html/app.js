@@ -3,6 +3,7 @@ import cards from "./cards.js"
 import { getLocalStorage, setLocalStorage, removeLocalStorage, getUrlParamValue, getProfiles } from './utility.js'
 
 (function(){
+	console.log('coucou')
 const SETSIZE = 10
 function CardSession(cardSet) {
 	this.cardTextEl = document.querySelector('#card-text')
@@ -109,7 +110,6 @@ function FlashCards(cards) {
 		const cards = []
 		const currentDay = Date.now()
 		const storedCards = this.getStoredCards()
-		console.log(storedCards)
 		for (const [key, value] of Object.entries(storedCards)) {
 			if (currentDay < value.t)
 				cards.push(key)
