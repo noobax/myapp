@@ -41,7 +41,7 @@ export function Cards(cardPull, localStorage) {
 		if (data === null) {
 			const nextBox = isCorrect ? 2 : 1
 			item = {[id]:{'b':nextBox, 't':(currentDate + millInDay * this.boxDelay[nextBox])}}
-		} else if (!!data[id] == false) {
+		} else if (!!data[id] === false) {
 			const nextBox = isCorrect ? 2 : 1
 			item = {'b':nextBox, 't':(currentDate + millInDay * this.boxDelay[nextBox])}
 		} else {
@@ -49,12 +49,9 @@ export function Cards(cardPull, localStorage) {
 			const nextBox = isCorrect ? curBox < 7 ? curBox++ : 7 : curBox > 1 ? curBox-- : 1
 			item = {'b':nextBox, 't':(currentDate + millInDay * this.boxDelay[nextBox])}
 		}
-		console.log(item)
 		if (data === null) {
-			console.log('nop')
 			this.localStorage.setData(item)
 		} else {
-			console.log('yeah')
 			data[id] = item
 			this.localStorage.setData(data)
 		}

@@ -6,15 +6,16 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link href="style.css" rel="stylesheet">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+		<script defer type="module" src="src/app.js"></script>
 	</head>
 	<body id="body">
 		<div id="quiz-app" class="container">
 			<h1 id="quiz-title">My app</h1>
 			<p id="quiz-question">What is your name?</p>
-			<input id="quiz-input" type="text" placeholder="write your name">
+			<input id="quiz-input" type="text" spellcheck="false" placeholder="write here..." style="display:block">
 			<button id="quiz-submit">Submit</button>
+			<button id="quiz-refresh" style="display:none">Encore</button>
 		</div>
-		<div id="test" class="hide"></div>
-		<script type="module" src="src/app.js"></script>
+		<article id="quiz-feedback" style="background-color:#99e000;color:black;display:none">La reponse est ...</article>
 	</body>
 </html>
