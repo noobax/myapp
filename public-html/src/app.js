@@ -13,6 +13,7 @@ import { getCards } from './getCards.js'
 	const quizSubmitEl = document.querySelector('#quiz-submit')
 	const quizFeedbackEl = document.querySelector('#quiz-feedback')
 	const quizRefreshEl = document.querySelector('#quiz-refresh')
+	const quizProgressEl = document.querySelector('#quiz-progress')
 	let checkAnswer = true
 
 	quizRefreshEl.addEventListener('click', () => location.reload())
@@ -41,16 +42,20 @@ import { getCards } from './getCards.js'
 			if (checkAnswer) {
 				if (quiz.hasQuestionLeft()) {
 					quizInputEl.readOnly = true
+					quizProgressEl.value = (quiz.currentIndex + 1)* 10
 					quiz.checkAnswer(answer)
 					cards.saveCard(curQuestion.id, hasAnsweredRight)
 					userInputFeedback(curQuestion.a, hasAnsweredRight)
 				} else {
+					quizProgressEl.value = (quiz.currentIndex + 1)* 10
 					quiz.checkAnswer(answer)
 					cards.saveCard(curQuestion.id, hasAnsweredRight)
 					userInputFeedback(curQuestion.a, hasAnsweredRight)
 					quizSubmitEl.style.display = 'none'
 					quizRefreshEl.style.display = 'block'
-					setTimeout(() => alert(`${quiz.rightAnswers} out of ${quiz.questions.length}`), 500)
+					//setTimeout(() => alert(`${quiz.rightAnswers} out of ${quiz.questions.length}`), 2000)
+					alert(`${quiz.rightAnswers} out of ${quiz.questions.length}`)
+					
 				}
 				checkAnswer = false
 			}
@@ -103,7 +108,9 @@ import { getCards } from './getCards.js'
 	body.addEventListener('keydown', quizEnterEvent)
 	quizSubmitEl.addEventListener('click', quizSubmitEvent)
 	const displayQuestion = () => {
-		quizQuestionEl.innerText = quiz.getCurrentQuestion().q
+		const question = quiz.getCurrentQuestion()
+		quizInputEl.placeholder = question.a.charAt(0) + ' . '.repeat(question.a.length - 2) + question.a.charAt(question.a.length - 1)
+		quizQuestionEl.innerText = question.q + ' (' + question.a.length + ')'
 		quizInputEl.value = ''
 		quizInputEl.focus()
 	}
